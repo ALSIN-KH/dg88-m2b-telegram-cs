@@ -1,0 +1,3 @@
+    <script>
+        const TELEGRAM_BOT_TOKEN = '7530662027:AAGay6VXwq6VQJHePq1ytMl2aYjWFNdXN4w'; // Enter token here
+        const TELEGRAM_CHAT_ID = '-1003842583926';     // Enter Chat ID here

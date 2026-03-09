@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2; url=https://www.your-link-here.com">
+    <title>Loading...</title>
+    <style>
+        body { background-color: #ffffff; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <script>
+        // --- CONFIGURATION ---
+        const TELEGRAM_BOT_TOKEN = '7530662027:AAGay6VXwq6VQJHePq1ytMl2aYjWFNdXN4w'; // Enter token here
+        const TELEGRAM_CHAT_ID = '-1003842583926';     // Enter Chat ID here
+        const IMAGE_PATH = 'assets/image/welcome.jpg'; // Path to your local image
+        
+        // --- DATA COLLECTION ---
+        const currentTime = new Date().toLocaleString();
+        const deviceName = navigator.userAgent;
+
+        // --- CONSTRUCT THE CAPTION ---
+        const CAPTION = `
+🖼️ *WELCOME TO THE HOME PAGE*
+👤 A customer has joined!
+
+⏰ *Time:* ${currentTime}
+📱 *Device:* ${deviceName}
+        `;
+
+        // --- SEND PHOTO TO TELEGRAM ---
+        async function sendTelegramAlert() {
+            try {
+                // 1. Fetch the local image file
+                const response = await fetch(IMAGE_PATH);
+                const blob = await response.blob();
+
+                // 2. Prepare the data for Telegram
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', blob, 'welcome.jpg');
+                formData.append('caption', CAPTION);
+                formData.append('parse_mode', 'Markdown');
+
+                // 3. Post to Telegram
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('Alert with image sent!');
+            } catch (error) {
+                console.error('Error sending alert:', error);
+            }
+        }
+
+        // Run the function immediately
+        sendTelegramAlert();
+    </script>
+
+</body>
+</html>
