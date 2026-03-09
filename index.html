@@ -13,13 +13,24 @@
 
     <script>
         // --- CONFIGURATION ---
-        const TELEGRAM_BOT_TOKEN = '7530662027:AAGay6VXwq6VQJHePq1ytMl2aYjWFNdXN4w'; // Enter token here
-        const TELEGRAM_CHAT_ID = '-1003842583926';     // Enter Chat ID here
-        const IMAGE_PATH = 'assets/image/welcome.jpg'; // Path to your local image
-        
+        const TOKEN = '7530662027:AAGay6VXwq6VQJHePq1ytMl2aYjWFNdXN4w'; 
+        const CHAT_ID = '-1003842583926'; 
+        const IMAGE_PATH = 'assets/image/welcome.jpg'; 
+
         // --- DATA COLLECTION ---
         const currentTime = new Date().toLocaleString();
-        const deviceName = navigator.userAgent;
+        
+        // Simple function to make the device name readable
+        function getDevice() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return "📱 Android Device";
+            if (/iPhone|iPad|iPod/i.test(ua)) return "📱 iOS Device";
+            if (/Windows/i.test(ua)) return "💻 Windows PC";
+            if (/Mac/i.test(ua)) return "💻 Mac";
+            return "❓ Unknown Device";
+        }
+
+        const device = getDevice();
 
         // --- CONSTRUCT THE CAPTION ---
         const CAPTION = `
@@ -27,36 +38,48 @@
 👤 A customer has joined!
 
 ⏰ *Time:* ${currentTime}
-📱 *Device:* ${deviceName}
+📱 *Device:* ${device}
         `;
 
         // --- SEND PHOTO TO TELEGRAM ---
         async function sendTelegramAlert() {
             try {
-                // 1. Fetch the local image file
+                // 1. Fetch the image from your assets folder
                 const response = await fetch(IMAGE_PATH);
+                if (!response.ok) throw new Error('Image not found in assets folder');
                 const blob = await response.blob();
 
-                // 2. Prepare the data for Telegram
+                // 2. Prepare the data
                 const formData = new FormData();
                 formData.append('chat_id', CHAT_ID);
                 formData.append('photo', blob, 'welcome.jpg');
                 formData.append('caption', CAPTION);
                 formData.append('parse_mode', 'Markdown');
 
-                // 3. Post to Telegram
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                // 3. Send to Telegram
+                await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
                     method: 'POST',
                     body: formData
                 });
 
-                console.log('Alert with image sent!');
+                console.log('Alert sent successfully');
             } catch (error) {
-                console.error('Error sending alert:', error);
+                console.error('Telegram Alert Failed:', error);
+                
+                // Fallback: If image fails, send text alert anyway
+                fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: "⚠️ Alert! Customer joined, but image failed to load.\n" + CAPTION,
+                        parse_mode: 'Markdown'
+                    })
+                });
             }
         }
 
-        // Run the function immediately
+        // Run immediately when page opens
         sendTelegramAlert();
     </script>
 
